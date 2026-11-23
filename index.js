@@ -39,7 +39,8 @@ export default {
       await answerCallback(BOT_TOKEN, cq.id);
       if (ALLOWED && username !== ALLOWED) { await sendMessage(BOT_TOKEN, chatId, "Unauthorized."); return new Response("ok"); }
 
-      if (data === "menu_back" || data === "menu_help") { await sendMainMenu(BOT_TOKEN, chatId); return new Response("ok"); }
+      if (data === "menu_back") { await sendMainMenu(BOT_TOKEN, chatId); return new Response("ok"); }
+      if (data === "menu_help") { await sendMessage(BOT_TOKEN, chatId, "📋 MDF Portfolio Bot -- Commands:\n\n/start — Main menu\n/cancel — Batalkan wizard aktif\n/status — Cek status bot & repo\n/listprojects — List dynamic projects\n/listcerts — List dynamic certificates\n/profile — Profile menu\n\n💡 Tip: Jika stuck di tengah wizard, ketik /cancel untuk membatalkan."); return new Response("ok"); }
       if (data === "menu_status") { await sendMessage(BOT_TOKEN, chatId, `Bot running! ${env.GITHUB_REPO} / ${env.GITHUB_BRANCH}`); return new Response("ok"); }
       if (data === "menu_certs") { await sendMessageWithKeyboard(BOT_TOKEN, chatId, "Certificates Menu", "", certMenu); return new Response("ok"); }
       if (data === "cert_list" || data === "menu_listcerts") { await handleListCerts(BOT_TOKEN, chatId, env); return new Response("ok"); }
@@ -117,7 +118,24 @@ export default {
     const username = message.from?.username || "";
     const lowerText = text.toLowerCase().trim();
     if (ALLOWED && username !== ALLOWED) { await sendMessage(BOT_TOKEN, chatId, "Unauthorized."); return new Response("ok"); }
-    if (lowerText === "/start" || lowerText === "/help") { await sendMainMenu(BOT_TOKEN, chatId); return new Response("ok"); }
+    if (lowerText === "/start" || lowerText === "/help") {
+      // Clear any active wizard state so user doesn't get stuck
+      const activeState = await env.BOT_STATE.get(`state:${chatId}`);
+      if (activeState) {
+        await env.BOT_STATE.delete(`state:${chatId}`);
+        await env.BOT_STATE.delete(`pending:${chatId}`);
+        await sendMessage(BOT_TOKEN, chatId, "⚠️ Wizard yang sedang berjalan dibatalkan.");
+      }
+      await sendMainMenu(BOT_TOKEN, chatId);
+      return new Response("ok");
+    }
+    if (lowerText === "/cancel") {
+      await env.BOT_STATE.delete(`state:${chatId}`);
+      await env.BOT_STATE.delete(`pending:${chatId}`);
+      await sendMessage(BOT_TOKEN, chatId, "❌ Wizard dibatalkan. Data tidak disimpan.");
+      await sendMainMenu(BOT_TOKEN, chatId);
+      return new Response("ok");
+    }
     if (lowerText === "/status") { await sendMessage(BOT_TOKEN, chatId, `Bot running! ${env.GITHUB_REPO} / ${env.GITHUB_BRANCH}`); return new Response("ok"); }
     if (lowerText === "/listcerts") { await handleListCerts(BOT_TOKEN, chatId, env); return new Response("ok"); }
     if (lowerText === "/listprojects") { await handleListProjects(BOT_TOKEN, chatId, env); return new Response("ok"); }
@@ -489,8 +507,6 @@ export default {
     return new Response("ok");
   },
 };
-
-// ── Helpers ─────────────────────────────────────────────────────────────────
 
 async function handleListCerts(token, chatId, env) {
   try {
