@@ -1,0 +1,27 @@
+{
+  "name": "mdf-telegram-bot",
+  "version": "1.0.0",
+  "description": "Serverless Telegram Bot for dynamic portfolio management via GitHub API and Cloudflare Workers",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --env production",
+    "deploy:staging": "wrangler deploy --env staging",
+    "deploy:testing": "wrangler deploy --env testing",
+    "tail": "wrangler tail --env production"
+  },
+  "keywords": [
+    "telegram-bot",
+    "cloudflare-workers",
+    "github-api",
+    "portfolio",
+    "serverless"
+  ],
+  "author": "Muhammad Dava Fahreza",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^4.156.2"
+  }
+}
+

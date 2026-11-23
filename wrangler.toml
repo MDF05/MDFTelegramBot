@@ -1,0 +1,43 @@
+name = "mdf-telegram-bot"
+main = "index.js"
+compatibility_date = "2024-01-01"
+
+# ── KV Namespace bindings ─────────────────────────────────────────────────────
+# Each environment needs its own KV namespace ID
+# Run: wrangler kv:namespace create BOT_STATE --env testing
+#      wrangler kv:namespace create BOT_STATE --env staging
+#      wrangler kv:namespace create BOT_STATE --env production
+# Then fill in the IDs below
+
+# ── Production ────────────────────────────────────────────────────────────────
+[env.production]
+name = "mdf-telegram-bot"
+
+[[env.production.kv_namespaces]]
+binding = "BOT_STATE"
+id = "085f6eb74cad448eabc070154a709369"
+
+[env.production.vars]
+GITHUB_BRANCH = "main"
+
+# ── Staging (dev branch) ──────────────────────────────────────────────────────
+[env.staging]
+name = "mdf-telegram-bot-staging"
+
+[[env.staging.kv_namespaces]]
+binding = "BOT_STATE"
+id = "19bc20a8c6614722b4ceead6edbbda00"
+
+[env.staging.vars]
+GITHUB_BRANCH = "dev"
+
+# ── Testing (testing branch) ──────────────────────────────────────────────────
+[env.testing]
+name = "mdf-telegram-bot-testing"
+
+[[env.testing.kv_namespaces]]
+binding = "BOT_STATE"
+id = "c8e161bce01941dfa584338d5da1f30f"
+
+[env.testing.vars]
+GITHUB_BRANCH = "testing"
